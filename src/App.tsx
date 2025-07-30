@@ -22,28 +22,6 @@ const LoadingSpinner: React.FC = () => (
   </div>
 );
 
-// Error Boundary Component
-const ErrorFallback: React.FC<{ error?: Error }> = ({ error }) => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-    <div className="text-center">
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">Something went wrong</h1>
-      <p className="text-gray-600 mb-4">Please try refreshing the page</p>
-      {error && (
-        <details className="text-sm text-gray-500">
-          <summary>Error details</summary>
-          <pre className="mt-2 text-left bg-gray-100 p-2 rounded">{error.message}</pre>
-        </details>
-      )}
-      <button 
-        onClick={() => window.location.reload()} 
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-      >
-        Refresh Page
-      </button>
-    </div>
-  </div>
-);
-
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentUser, loading } = useAuth();

@@ -178,6 +178,7 @@ export interface ProjectFormData {
   framework: 'react' | 'vue' | 'angular' | 'node' | 'python' | 'java' | 'dotnet' | 'php' | 'go' | 'rust' | 'custom';
   buildCommand?: string;
   outputDirectory?: string;
+  environmentVariables?: EnvironmentVariable[];
   platform: 'aws' | 'gcp' | 'azure' | 'vercel' | 'netlify' | 'heroku' | 'docker' | 'kubernetes';
   region?: string;
   domain?: string;
@@ -205,6 +206,8 @@ export interface ChatMessage {
   message: string;
   isUser: boolean;
   timestamp: Date;
+  type?: string;
+  response?: string;
   context?: {
     projectId?: string;
     deploymentId?: string;

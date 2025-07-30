@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
   MessageCircle, 
@@ -27,21 +27,11 @@ const ChatBot: React.FC = () => {
   const [chatType, setChatType] = useState<'dockerfile' | 'jenkinsfile' | 'k8s' | 'general'>('general');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (isOpen && currentUser) {
-      loadChatHistory();
-    }
-  }, [isOpen, currentUser]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const loadChatHistory = async () => {
+  const loadChatHistory = useCallback(async () => {
     try {
       const chatQuery = query(
         collection(db, 'chats'),
@@ -61,7 +51,17 @@ const ChatBot: React.FC = () => {
     } catch (error) {
       console.error('Error loading chat history:', error);
     }
-  };
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (isOpen && currentUser) {
+      loadChatHistory();
+    }
+  }, [isOpen, currentUser, loadChatHistory]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const callGeminiAPI = async (message: string, context: string): Promise<string> => {
     try {
@@ -305,7 +305,8 @@ What would you like help with today? You can ask me about:
         response: '',
         timestamp: new Date(),
         userId: currentUser.uid,
-        type: chatType
+        type: chatType,
+        isUser: true
       };
 
       const userDocRef = await addDoc(collection(db, 'chats'), userChatMessage);
@@ -386,7 +387,7 @@ What would you like help with today? You can ask me about:
               ].map(({ type, label }) => (
                 <button
                   key={type}
-                  onClick={() => setChatType(type as any)}
+                  onClick={() => setChatType(type as 'dockerfile' | 'jenkinsfile' | 'k8s' | 'general')}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     chatType === type
                       ? 'bg-blue-100 text-blue-700'
@@ -446,8 +447,8 @@ What would you like help with today? You can ask me about:
                   <User className="h-6 w-6 text-gray-400 mt-1" />
                   <div className="bg-gray-100 rounded-lg p-3 max-w-xs">
                     <div className="flex items-center space-x-1 mb-1">
-                      {getChatTypeIcon(msg.type)}
-                      <span className="text-xs text-gray-500 capitalize">{msg.type}</span>
+                      {getChatTypeIcon(msg.type || 'general')}
+                      <span className="text-xs text-gray-500 capitalize">{msg.type || 'general'}</span>
                     </div>
                     <p className="text-sm text-gray-900">{msg.message}</p>
                   </div>

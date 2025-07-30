@@ -12,7 +12,6 @@ import {
   ArrowRight,
   Play,
   Code,
-  Cloud,
   Lock
 } from 'lucide-react';
 

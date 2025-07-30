@@ -14,15 +14,15 @@ import {
 import toast from 'react-hot-toast';
 
 const Navbar: React.FC = () => {
-  const { currentUser, signOut } = useAuth();
+  const { currentUser, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await logout();
       toast.success('Signed out successfully');
-    } catch (error) {
+    } catch {
       toast.error('Failed to sign out');
     }
   };

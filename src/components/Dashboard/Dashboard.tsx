@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { collection, query, where, getDocs, orderBy, limit, doc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../config/firebase';
@@ -11,13 +11,9 @@ import {
   CheckCircle, 
   XCircle, 
   AlertCircle,
-  Settings,
   Shield,
   BarChart3,
-  Activity,
-  Globe,
-  Users,
-  Zap
+  Activity
 } from 'lucide-react';
 import ProjectCard from './ProjectCard';
 import StatsCard from './StatsCard';
@@ -42,14 +38,7 @@ const Dashboard: React.FC = () => {
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [hasCredentials, setHasCredentials] = useState(false);
 
-  useEffect(() => {
-    if (currentUser) {
-      loadDashboardData();
-      checkCredentials();
-    }
-  }, [currentUser]);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     if (!currentUser) return;
 
     try {
@@ -109,9 +98,9 @@ const Dashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser]);
 
-  const checkCredentials = async () => {
+  const checkCredentials = useCallback(async () => {
     if (!currentUser) return;
 
     try {
@@ -121,9 +110,16 @@ const Dashboard: React.FC = () => {
     } catch (error) {
       console.error('Error checking credentials:', error);
     }
-  };
+  }, [currentUser]);
 
-  const handleProjectCreated = (projectId: string) => {
+  useEffect(() => {
+    if (currentUser) {
+      loadDashboardData();
+      checkCredentials();
+    }
+  }, [currentUser, loadDashboardData, checkCredentials]);
+
+  const handleProjectCreated = () => {
     setShowProjectModal(false);
     loadDashboardData(); // Refresh data
     toast.success('Project created successfully!');

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
@@ -27,14 +27,7 @@ const CredentialsSetup: React.FC<CredentialsSetupProps> = ({ onComplete, isModal
     reset
   } = useForm<CredentialsFormData>();
 
-  // Check for existing credentials on component mount
-  useEffect(() => {
-    if (currentUser) {
-      loadExistingCredentials();
-    }
-  }, [currentUser]);
-
-  const loadExistingCredentials = async () => {
+  const loadExistingCredentials = useCallback(async () => {
     if (!currentUser) return;
 
     try {
@@ -58,7 +51,14 @@ const CredentialsSetup: React.FC<CredentialsSetupProps> = ({ onComplete, isModal
     } catch (error) {
       console.error('Error loading credentials:', error);
     }
-  };
+  }, [currentUser, setValue]);
+
+  // Check for existing credentials on component mount
+  useEffect(() => {
+    if (currentUser) {
+      loadExistingCredentials();
+    }
+  }, [currentUser, loadExistingCredentials]);
 
   const togglePasswordVisibility = (field: string) => {
     setShowPasswords(prev => ({
@@ -140,7 +140,7 @@ const CredentialsSetup: React.FC<CredentialsSetupProps> = ({ onComplete, isModal
     placeholder: string,
     type: 'text' | 'password' = 'text',
     required: boolean = false,
-    validation?: any
+    validation?: Record<string, unknown>
   ) => {
     const isPassword = type === 'password';
     const showPassword = showPasswords[name];

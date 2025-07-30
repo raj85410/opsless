@@ -1,24 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { doc, setDoc, collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../config/firebase';
-import { Project, ProjectFormData, EnvironmentVariable, DeploymentConfig } from '../../types';
+import { Project, ProjectFormData, DeploymentConfig } from '../../types';
 import { 
-  GitBranch, 
-  Globe, 
-  Settings, 
   Rocket, 
-  Code, 
   Database, 
-  Shield, 
   Loader2,
   Plus,
   Trash2,
   Eye,
   EyeOff,
   CheckCircle,
-  AlertCircle,
   Info
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -33,7 +27,13 @@ const ProjectCreator: React.FC<ProjectCreatorProps> = ({ onComplete, isModal = f
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
-  const [repositoryInfo, setRepositoryInfo] = useState<any>(null);
+  const [repositoryInfo, setRepositoryInfo] = useState<{
+    name: string;
+    description: string;
+    defaultBranch: string;
+    isPrivate: boolean;
+    lastCommit: string;
+  } | null>(null);
   const [isValidatingRepo, setIsValidatingRepo] = useState(false);
 
   const {
@@ -42,8 +42,7 @@ const ProjectCreator: React.FC<ProjectCreatorProps> = ({ onComplete, isModal = f
     formState: { errors, isSubmitting },
     watch,
     setValue,
-    control,
-    reset
+    control
   } = useForm<ProjectFormData>({
     defaultValues: {
       name: '',
@@ -162,7 +161,7 @@ const ProjectCreator: React.FC<ProjectCreatorProps> = ({ onComplete, isModal = f
       });
       
       toast.success('Repository validated successfully!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to validate repository. Please check the URL.');
     } finally {
       setIsValidatingRepo(false);
@@ -233,8 +232,7 @@ const ProjectCreator: React.FC<ProjectCreatorProps> = ({ onComplete, isModal = f
       if (onComplete) {
         onComplete(projectDoc.id);
       }
-    } catch (error) {
-      console.error('Error creating project:', error);
+    } catch {
       toast.error('Failed to create project. Please try again.');
     } finally {
       setIsLoading(false);
@@ -531,7 +529,7 @@ const ProjectCreator: React.FC<ProjectCreatorProps> = ({ onComplete, isModal = f
           <button
             key={platform.value}
             type="button"
-            onClick={() => setValue('platform', platform.value as any)}
+            onClick={() => setValue('platform', platform.value as 'aws' | 'gcp' | 'azure' | 'vercel' | 'netlify' | 'heroku' | 'docker' | 'kubernetes')}
             className={`p-4 border-2 rounded-lg text-center transition-colors ${
               watchedPlatform === platform.value
                 ? 'border-blue-500 bg-blue-50'

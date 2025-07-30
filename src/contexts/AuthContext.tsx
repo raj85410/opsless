@@ -40,16 +40,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
       toast.success('Successfully logged in!');
-    } catch (error: any) {
+    } catch (error: unknown) {
       let errorMessage = 'Login failed. Please try again.';
       
-      if (error.code === 'auth/user-not-found') {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'auth/user-not-found') {
         errorMessage = 'No account found with this email address.';
-      } else if (error.code === 'auth/wrong-password') {
+      } else if (error && typeof error === 'object' && 'code' in error && error.code === 'auth/wrong-password') {
         errorMessage = 'Incorrect password. Please try again.';
-      } else if (error.code === 'auth/invalid-email') {
+      } else if (error && typeof error === 'object' && 'code' in error && error.code === 'auth/invalid-email') {
         errorMessage = 'Please enter a valid email address.';
-      } else if (error.code === 'auth/too-many-requests') {
+      } else if (error && typeof error === 'object' && 'code' in error && error.code === 'auth/too-many-requests') {
         errorMessage = 'Too many failed attempts. Please try again later.';
       }
       
@@ -76,14 +76,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       await setDoc(doc(db, 'users', user.uid), userData);
       toast.success('Account created successfully!');
-    } catch (error: any) {
+    } catch (error: unknown) {
       let errorMessage = 'Signup failed. Please try again.';
       
-      if (error.code === 'auth/email-already-in-use') {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'auth/email-already-in-use') {
         errorMessage = 'An account with this email already exists.';
-      } else if (error.code === 'auth/weak-password') {
+      } else if (error && typeof error === 'object' && 'code' in error && error.code === 'auth/weak-password') {
         errorMessage = 'Password should be at least 6 characters long.';
-      } else if (error.code === 'auth/invalid-email') {
+      } else if (error && typeof error === 'object' && 'code' in error && error.code === 'auth/invalid-email') {
         errorMessage = 'Please enter a valid email address.';
       }
       
@@ -101,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentUser(null);
       setFirebaseUser(null);
       toast.success('Successfully logged out!');
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error('Logout failed. Please try again.');
       throw error;
     } finally {

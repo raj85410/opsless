@@ -2,11 +2,9 @@ import React from 'react';
 import { Project } from '../../types';
 import { 
   GitBranch, 
-  Clock, 
   CheckCircle, 
   XCircle, 
   AlertCircle,
-  ExternalLink,
   Settings,
   Globe,
   Code,
