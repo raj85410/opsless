@@ -89,6 +89,19 @@ export interface BuildLog {
   step: string;
 }
 
+// Log Types
+export interface LogEntry {
+  id: string;
+  timestamp: Date;
+  level: 'error' | 'warn' | 'info' | 'debug';
+  message: string;
+  source: string;
+  userId?: string;
+  projectId?: string;
+  deploymentId?: string;
+  metadata?: Record<string, unknown>;
+}
+
 // CI/CD Pipeline Types
 export interface Pipeline {
   id: string;
