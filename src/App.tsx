@@ -94,14 +94,14 @@ function AppContent() {
               } 
             />
 
-            <Route 
+            {/* <Route 
               path="/logs" 
               element={
                 <ProtectedRoute>
                   <LogViewer />
                 </ProtectedRoute>
               } 
-            />
+            /> */}
 
             <Route 
               path="/pipeline-logs" 
