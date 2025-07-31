@@ -4,7 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout/Layout';
 
-// Lazy load components for faster initial load
+// Lazy load components
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
 const Help = lazy(() => import('./pages/Help'));
@@ -12,14 +12,17 @@ const Login = lazy(() => import('./components/Auth/Login'));
 const Signup = lazy(() => import('./components/Auth/Signup'));
 const Dashboard = lazy(() => import('./components/Dashboard/Dashboard'));
 const MonitoringDashboard = lazy(() => import('./components/Dashboard/MonitoringDashboard'));
+
+// ✅ Make sure this file exists: src/components/Logs/LogViewer.tsx
 const LogViewer = lazy(() => import('./components/Logs/LogViewer'));
+
 const PipelineLogsDemo = lazy(() => import('./pages/PipelineLogsDemo'));
 const ChatBot = lazy(() => import('./components/Chat/ChatBot'));
 const CredentialsSetup = lazy(() => import('./components/Credentials/CredentialsSetup'));
 const ProjectCreator = lazy(() => import('./components/Projects/ProjectCreator'));
 const Profile = lazy(() => import('./pages/Profile'));
 
-// Loading Component
+// Spinner while loading lazy components
 const LoadingSpinner: React.FC = () => (
   <div className="min-h-screen bg-gray-50 flex items-center justify-center">
     <div className="flex flex-col items-center space-y-4">
@@ -29,28 +32,23 @@ const LoadingSpinner: React.FC = () => (
   </div>
 );
 
-// Protected Route Component
+// Protected route wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentUser, loading } = useAuth();
-  
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-  
+
+  if (loading) return <LoadingSpinner />;
   return currentUser ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
-// Public Route Component (redirect to dashboard if logged in)
+// Public route wrapper
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentUser, loading } = useAuth();
-  
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-  
+
+  if (loading) return <LoadingSpinner />;
   return !currentUser ? <>{children}</> : <Navigate to="/dashboard" replace />;
 };
 
+// Main content
 function AppContent() {
   const { currentUser } = useAuth();
 
@@ -62,6 +60,7 @@ function AppContent() {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/help" element={<Help />} />
+
             <Route 
               path="/login" 
               element={
@@ -70,6 +69,7 @@ function AppContent() {
                 </PublicRoute>
               } 
             />
+
             <Route 
               path="/signup" 
               element={
@@ -78,6 +78,7 @@ function AppContent() {
                 </PublicRoute>
               } 
             />
+
             <Route 
               path="/dashboard" 
               element={
@@ -86,6 +87,7 @@ function AppContent() {
                 </ProtectedRoute>
               } 
             />
+
             <Route 
               path="/monitoring" 
               element={
@@ -94,6 +96,7 @@ function AppContent() {
                 </ProtectedRoute>
               } 
             />
+
             <Route 
               path="/logs" 
               element={
@@ -102,6 +105,7 @@ function AppContent() {
                 </ProtectedRoute>
               } 
             />
+
             <Route 
               path="/pipeline-logs" 
               element={
@@ -110,6 +114,7 @@ function AppContent() {
                 </ProtectedRoute>
               } 
             />
+
             <Route 
               path="/credentials" 
               element={
@@ -118,6 +123,7 @@ function AppContent() {
                 </ProtectedRoute>
               } 
             />
+
             <Route 
               path="/projects/new" 
               element={
@@ -126,6 +132,7 @@ function AppContent() {
                 </ProtectedRoute>
               } 
             />
+
             <Route 
               path="/profile" 
               element={
@@ -134,16 +141,17 @@ function AppContent() {
                 </ProtectedRoute>
               } 
             />
-            {/* Catch all route */}
+
+            {/* Catch-all redirect */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </Layout>
-      
-      {/* Chat Bot - only show for authenticated users */}
+
+      {/* ChatBot only visible if authenticated */}
       {currentUser && <ChatBot />}
-      
-      {/* Toast Notifications */}
+
+      {/* Toasts */}
       <Toaster
         position="top-right"
         toastOptions={{
@@ -172,6 +180,7 @@ function AppContent() {
   );
 }
 
+// Root App
 function App() {
   return (
     <Router>
