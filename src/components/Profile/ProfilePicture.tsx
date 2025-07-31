@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { User, Camera, X, Loader2 } from 'lucide-react';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { doc, updateDoc } from 'firebase/firestore';
-import { storage, db } from '../../config/firebase';
+import { storage } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -17,7 +16,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = React.memo(({
   showUploadButton = false,
   className = ''
 }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, updateProfile } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -68,7 +67,6 @@ const ProfilePicture: React.FC<ProfilePictureProps> = React.memo(({
       const downloadURL = await getDownloadURL(storageRef);
       
       // Update user profile using AuthContext
-      const { updateProfile } = useAuth();
       await updateProfile({ photoURL: downloadURL });
 
       toast.success('Profile picture updated successfully!');
@@ -138,7 +136,6 @@ const ProfilePicture: React.FC<ProfilePictureProps> = React.memo(({
 
     try {
       // Update user profile using AuthContext
-      const { updateProfile } = useAuth();
       await updateProfile({ photoURL: undefined });
 
       toast.success('Profile picture removed successfully!');

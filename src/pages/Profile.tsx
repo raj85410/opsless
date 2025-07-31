@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
-import { db } from '../config/firebase';
 import ProfilePicture from '../components/Profile/ProfilePicture';
 import { User, Mail, Calendar, Shield, Save, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -12,14 +10,13 @@ interface ProfileFormData {
 }
 
 const Profile: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, updateProfile } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-    setValue
+    formState: { errors, isSubmitting }
   } = useForm<ProfileFormData>({
     defaultValues: {
       displayName: currentUser?.displayName || ''
@@ -41,7 +38,6 @@ const Profile: React.FC = () => {
     setIsUpdating(true);
 
     try {
-      const { updateProfile } = useAuth();
       await updateProfile({
         displayName: data.displayName
       });

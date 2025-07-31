@@ -13,7 +13,6 @@ const Signup = lazy(() => import('./components/Auth/Signup'));
 const Dashboard = lazy(() => import('./components/Dashboard/Dashboard'));
 const MonitoringDashboard = lazy(() => import('./components/Dashboard/MonitoringDashboard'));
 const LogViewer = lazy(() => import('./components/Logs/LogViewer'));
-const PipelineLogs = lazy(() => import('./components/Logs/PipelineLogs'));
 const PipelineLogsDemo = lazy(() => import('./pages/PipelineLogsDemo'));
 const ChatBot = lazy(() => import('./components/Chat/ChatBot'));
 const CredentialsSetup = lazy(() => import('./components/Credentials/CredentialsSetup'));
