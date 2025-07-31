@@ -1,4 +1,5 @@
 import React from 'react';
+import logoImage from '../assets/images/logo2.jpg';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -23,12 +24,12 @@ const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, className = '
 
   return (
     <div className={`flex items-center ${className}`}>
-      {/* Logo Image - Using logo2.jpg */}
+      {/* Logo Image */}
       <div className={`${sizeClasses[size]} relative`}>
         <img 
-          src="/src/assets/images/logo2.jpg" 
+          src={logoImage} 
           alt="Opsless Logo"
-          className="w-full h-full object-contain"
+          className="w-full h-full object-contain rounded-lg"
         />
       </div>
       
