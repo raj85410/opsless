@@ -31,7 +31,10 @@ VITE_FIREBASE_PROJECT_ID=your_project_id
 VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
+VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
 ```
+
+**Note**: The application will fall back to default Firebase configuration if environment variables are not set, but it's recommended to use your own Firebase project for production.
 
 ### 3. Build Settings
 
@@ -62,6 +65,15 @@ If the build fails with dependency issues:
 1. Check that all dependencies are in `package.json`
 2. Ensure Node.js version is 18 or higher
 3. Clear Netlify cache and retry
+
+#### Common Build Errors
+
+**"Could not resolve" errors**: If you encounter errors like "Could not resolve './components/Logs/LogViewer'", this is usually due to:
+- Case sensitivity issues (Netlify runs on Linux)
+- Missing file extensions
+- Incorrect import paths
+
+**Solution**: The project is now configured with proper path resolution and should handle these issues automatically.
 
 ### Routing Issues
 
