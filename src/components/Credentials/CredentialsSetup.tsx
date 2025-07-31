@@ -38,14 +38,20 @@ const CredentialsSetup: React.FC<CredentialsSetupProps> = ({ onComplete, isModal
         const data = credentialsSnap.data() as Credentials;
         setExistingCredentials(data);
         
-        // Pre-fill form with existing data (masked)
+        // Pre-fill form with existing data (masked) - batch updates
+        const maskedValues: Partial<CredentialsFormData> = {};
         Object.keys(data).forEach(key => {
           if (key !== 'id' && key !== 'userId' && key !== 'createdAt' && key !== 'updatedAt') {
             const value = data[key as keyof Credentials];
             if (typeof value === 'string' && value.length > 0) {
-              setValue(key as keyof CredentialsFormData, '••••••••••••••••');
+              maskedValues[key as keyof CredentialsFormData] = '••••••••••••••••';
             }
           }
+        });
+        
+        // Set all values at once instead of multiple setValue calls
+        Object.entries(maskedValues).forEach(([key, value]) => {
+          setValue(key as keyof CredentialsFormData, value);
         });
       }
     } catch (error) {
@@ -89,8 +95,13 @@ const CredentialsSetup: React.FC<CredentialsSetupProps> = ({ onComplete, isModal
                     data.awsAccessKeyId !== '••••••••••••••••' &&
                     data.awsSecretAccessKey !== '••••••••••••••••' &&
                     data.awsRegion !== '••••••••••••••••';
+      const hasSSH = data.sshHost && data.sshPort && data.sshUsername && data.sshPassword &&
+                    data.sshHost !== '••••••••••••••••' &&
+                    data.sshPort !== '••••••••••••••••' &&
+                    data.sshUsername !== '••••••••••••••••' &&
+                    data.sshPassword !== '••••••••••••••••';
 
-      if (!hasGitHub && !hasDocker && !hasJenkins && !hasAWS) {
+      if (!hasGitHub && !hasDocker && !hasJenkins && !hasAWS && !hasSSH) {
         toast.error('Please provide at least one set of credentials');
         return;
       }
@@ -115,6 +126,12 @@ const CredentialsSetup: React.FC<CredentialsSetupProps> = ({ onComplete, isModal
         credentialsData.awsAccessKeyId = data.awsAccessKeyId;
         credentialsData.awsSecretAccessKey = data.awsSecretAccessKey;
         credentialsData.awsRegion = data.awsRegion;
+      }
+      if (hasSSH) {
+        credentialsData.sshHost = data.sshHost;
+        credentialsData.sshPort = data.sshPort;
+        credentialsData.sshUsername = data.sshUsername;
+        credentialsData.sshPassword = data.sshPassword;
       }
 
       // Save to Firestore
@@ -364,6 +381,83 @@ const CredentialsSetup: React.FC<CredentialsSetupProps> = ({ onComplete, isModal
                 }
               }
             )}
+          </div>
+        </div>
+
+        {/* SSH Section */}
+        <div className="border border-gray-200 rounded-lg p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">VM</span>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Target VM (SSH)</h3>
+              <p className="text-sm text-gray-600">Configure remote server for deployment</p>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {renderField(
+                'sshHost',
+                'Host IP Address',
+                '192.168.1.100',
+                'text',
+                false,
+                {
+                  pattern: {
+                    value: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^••••••••••••••••$/,
+                    message: 'Please enter a valid IP address'
+                  }
+                }
+              )}
+              {renderField(
+                'sshPort',
+                'Port',
+                '22',
+                'text',
+                false,
+                {
+                  pattern: {
+                    value: /^[1-9]\d{0,4}$|^••••••••••••••••$/,
+                    message: 'Please enter a valid port number (1-65535)'
+                  }
+                }
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {renderField(
+                'sshUsername',
+                'SSH Username',
+                'root or ubuntu',
+                'text',
+                false
+              )}
+              {renderField(
+                'sshPassword',
+                'SSH Password',
+                'Your SSH password',
+                'password',
+                false
+              )}
+            </div>
+            
+            {/* Authentication Note */}
+            <div className="text-sm text-gray-600 italic">
+              Key-based authentication coming in future release
+            </div>
+          </div>
+        </div>
+
+        {/* Supported Systems Banner */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">✓</span>
+            </div>
+            <span className="text-sm font-medium text-blue-900">
+              Supported Systems: RHEL, Ubuntu, CentOS, Amazon Linux, and other SSH-enabled VMs
+            </span>
           </div>
         </div>
 

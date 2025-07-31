@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Deployment } from '../../types';
 import { 
   CheckCircle, 
@@ -7,12 +7,15 @@ import {
   AlertCircle,
   ExternalLink
 } from 'lucide-react';
+import PipelineLogs from '../Logs/PipelineLogs';
 
 interface DeploymentHistoryProps {
   deployments: Deployment[];
 }
 
 const DeploymentHistory: React.FC<DeploymentHistoryProps> = ({ deployments }) => {
+  const [showPipelineLogs, setShowPipelineLogs] = useState(false);
+  const [selectedDeployment, setSelectedDeployment] = useState<Deployment | null>(null);
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'success':
@@ -40,8 +43,8 @@ const DeploymentHistory: React.FC<DeploymentHistoryProps> = ({ deployments }) =>
   };
 
   const getDuration = (deployment: Deployment) => {
-    if (!deployment.endTime) return 'In progress...';
-    const duration = new Date(deployment.endTime).getTime() - new Date(deployment.startTime).getTime();
+    if (!deployment.completedAt) return 'In progress...';
+    const duration = new Date(deployment.completedAt).getTime() - new Date(deployment.startedAt).getTime();
     const minutes = Math.floor(duration / 60000);
     const seconds = Math.floor((duration % 60000) / 1000);
     return `${minutes}m ${seconds}s`;
@@ -60,7 +63,8 @@ const DeploymentHistory: React.FC<DeploymentHistoryProps> = ({ deployments }) =>
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200">
         <h3 className="text-lg font-medium text-gray-900">Deployment History</h3>
       </div>
@@ -81,13 +85,19 @@ const DeploymentHistory: React.FC<DeploymentHistoryProps> = ({ deployments }) =>
                   </div>
                   <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
                     <span>{deployment.environment}</span>
-                    <span>{new Date(deployment.startTime).toLocaleString()}</span>
+                    <span>{new Date(deployment.startedAt).toLocaleString()}</span>
                     <span>{getDuration(deployment)}</span>
                   </div>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <button className="text-blue-600 hover:text-blue-700 text-sm flex items-center space-x-1">
+                <button 
+                  onClick={() => {
+                    setSelectedDeployment(deployment);
+                    setShowPipelineLogs(true);
+                  }}
+                  className="text-blue-600 hover:text-blue-700 text-sm flex items-center space-x-1"
+                >
                   <ExternalLink size={16} />
                   <span>View Logs</span>
                 </button>
@@ -97,6 +107,24 @@ const DeploymentHistory: React.FC<DeploymentHistoryProps> = ({ deployments }) =>
         ))}
       </div>
     </div>
+
+    {/* Pipeline Logs Modal */}
+    {showPipelineLogs && selectedDeployment && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
+            <PipelineLogs 
+              pipelineId={`deployment-${selectedDeployment.id}`}
+              onClose={() => {
+                setShowPipelineLogs(false);
+                setSelectedDeployment(null);
+              }} 
+            />
+          </div>
+        </div>
+      </div>
+    )}
+  </>
   );
 };
 

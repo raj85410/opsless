@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import Logo from '../components/Logo';
 import { 
-  Rocket, 
   Shield, 
   Zap, 
   Globe, 
@@ -20,7 +20,7 @@ const Home: React.FC = () => {
 
   const features = [
     {
-      icon: <Rocket className="w-8 h-8" />,
+      icon: <Logo size="md" showText={false} className="text-blue-600" />,
       title: 'One-Click Deployments',
       description: 'Deploy your applications with a single click. No DevOps expertise required.',
       color: 'bg-blue-100 text-blue-600'
@@ -89,7 +89,7 @@ const Home: React.FC = () => {
           <div className="text-center">
             <div className="flex items-center justify-center mb-6">
               <div className="p-3 bg-blue-100 rounded-xl">
-                <Rocket className="w-8 h-8 text-blue-600" />
+                <Logo size="lg" showText={false} className="text-blue-600" />
               </div>
               <h1 className="ml-4 text-5xl font-bold text-gray-900">
                 Opsless
@@ -114,7 +114,7 @@ const Home: React.FC = () => {
                     to="/signup"
                     className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                   >
-                    <Rocket className="w-5 h-5" />
+                    <Logo size="sm" showText={false} className="text-white" />
                     Get Started Free
                   </Link>
                   <Link
@@ -192,7 +192,7 @@ const Home: React.FC = () => {
 
             <div className="text-center">
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Rocket className="w-8 h-8 text-purple-600" />
+                <Logo size="lg" showText={false} className="text-purple-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">3. Deploy</h3>
               <p className="text-gray-600">
@@ -319,7 +319,7 @@ const Home: React.FC = () => {
                   to="/signup"
                   className="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition-colors font-medium"
                 >
-                  <Rocket className="w-5 h-5" />
+                  <Logo size="sm" showText={false} className="text-blue-600" />
                   Start Free Trial
                 </Link>
                 <Link
@@ -340,7 +340,7 @@ const Home: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center mb-4">
-                <Rocket className="w-6 h-6 text-blue-400" />
+                <Logo size="sm" showText={false} className="text-blue-400" />
                 <span className="ml-2 text-xl font-bold">Opsless</span>
               </div>
               <p className="text-gray-400">

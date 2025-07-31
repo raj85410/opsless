@@ -17,6 +17,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, displayName: string, role?: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (updates: Partial<User>) => Promise<void>;
   loading: boolean;
 }
 
@@ -69,9 +70,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         uid: user.uid,
         email: user.email!,
         displayName,
+        photoURL: user.photoURL || undefined,
         role: role as 'admin' | 'developer' | 'viewer',
         createdAt: new Date(),
-        lastLogin: new Date()
+        lastLoginAt: new Date()
       };
 
       await setDoc(doc(db, 'users', user.uid), userData);
@@ -109,6 +111,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateProfile = async (updates: Partial<User>) => {
+    if (!currentUser) {
+      throw new Error('No user logged in');
+    }
+
+    try {
+      // Optimistically update local state first for instant UI feedback
+      setCurrentUser(prev => prev ? { ...prev, ...updates } : null);
+      
+      // Then update Firestore in background
+      const userRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userRef, {
+        ...updates,
+        lastLoginAt: new Date()
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      // Revert optimistic update on error
+      setCurrentUser(prev => prev ? { ...prev, ...currentUser } : null);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setFirebaseUser(user);
@@ -120,7 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const userData = userDoc.data() as User;
             // Convert Firestore timestamps to Date objects
             userData.createdAt = userData.createdAt instanceof Date ? userData.createdAt : new Date(userData.createdAt);
-            userData.lastLogin = userData.lastLogin instanceof Date ? userData.lastLogin : new Date(userData.lastLogin);
+            userData.lastLoginAt = userData.lastLoginAt instanceof Date ? userData.lastLoginAt : new Date(userData.lastLoginAt);
             setCurrentUser(userData);
           } else {
             // If user document doesn't exist, create a basic one
@@ -128,9 +153,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               uid: user.uid,
               email: user.email!,
               displayName: user.displayName || user.email!.split('@')[0],
+              photoURL: user.photoURL || undefined,
               role: 'developer',
               createdAt: new Date(),
-              lastLogin: new Date()
+              lastLoginAt: new Date()
             };
             await setDoc(doc(db, 'users', user.uid), basicUserData);
             setCurrentUser(basicUserData);
@@ -142,9 +168,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             uid: user.uid,
             email: user.email!,
             displayName: user.displayName || user.email!.split('@')[0],
+            photoURL: user.photoURL || undefined,
             role: 'developer',
             createdAt: new Date(),
-            lastLogin: new Date()
+            lastLoginAt: new Date()
           };
           setCurrentUser(basicUserData);
         }
@@ -164,6 +191,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     signup,
     logout,
+    updateProfile,
     loading
   };
 

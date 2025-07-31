@@ -1,24 +1,32 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout/Layout';
-import Home from './pages/Home';
-import About from './pages/About';
-import Help from './pages/Help';
-import Login from './components/Auth/Login';
-import Signup from './components/Auth/Signup';
-import Dashboard from './components/Dashboard/Dashboard';
-import MonitoringDashboard from './components/Dashboard/MonitoringDashboard';
-import LogViewer from './components/Logs/LogViewer';
-import ChatBot from './components/Chat/ChatBot';
-import CredentialsSetup from './components/Credentials/CredentialsSetup';
-import ProjectCreator from './components/Projects/ProjectCreator';
+
+// Lazy load components for faster initial load
+const Home = lazy(() => import('./pages/Home'));
+const About = lazy(() => import('./pages/About'));
+const Help = lazy(() => import('./pages/Help'));
+const Login = lazy(() => import('./components/Auth/Login'));
+const Signup = lazy(() => import('./components/Auth/Signup'));
+const Dashboard = lazy(() => import('./components/Dashboard/Dashboard'));
+const MonitoringDashboard = lazy(() => import('./components/Dashboard/MonitoringDashboard'));
+const LogViewer = lazy(() => import('./components/Logs/LogViewer'));
+const PipelineLogs = lazy(() => import('./components/Logs/PipelineLogs'));
+const PipelineLogsDemo = lazy(() => import('./pages/PipelineLogsDemo'));
+const ChatBot = lazy(() => import('./components/Chat/ChatBot'));
+const CredentialsSetup = lazy(() => import('./components/Credentials/CredentialsSetup'));
+const ProjectCreator = lazy(() => import('./components/Projects/ProjectCreator'));
+const Profile = lazy(() => import('./pages/Profile'));
 
 // Loading Component
 const LoadingSpinner: React.FC = () => (
   <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+    <div className="flex flex-col items-center space-y-4">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <p className="text-gray-600 text-sm">Loading...</p>
+    </div>
   </div>
 );
 
@@ -96,6 +104,14 @@ function AppContent() {
               } 
             />
             <Route 
+              path="/pipeline-logs" 
+              element={
+                <ProtectedRoute>
+                  <PipelineLogsDemo />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/credentials" 
               element={
                 <ProtectedRoute>
@@ -108,6 +124,14 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <ProjectCreator />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               } 
             />

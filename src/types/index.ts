@@ -4,6 +4,7 @@ export interface User {
   email: string;
   displayName?: string;
   photoURL?: string;
+  role?: 'admin' | 'developer' | 'viewer';
   createdAt: Date;
   lastLoginAt: Date;
 }
@@ -21,6 +22,10 @@ export interface Credentials {
   awsAccessKeyId?: string;
   awsSecretAccessKey?: string;
   awsRegion?: string;
+  sshHost?: string;
+  sshPort?: string;
+  sshUsername?: string;
+  sshPassword?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -180,6 +185,10 @@ export interface CredentialsFormData {
   awsAccessKeyId: string;
   awsSecretAccessKey: string;
   awsRegion: string;
+  sshHost: string;
+  sshPort: string;
+  sshUsername: string;
+  sshPassword: string;
 }
 
 export interface ProjectFormData {

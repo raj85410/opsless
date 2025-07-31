@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Zap, 
   Shield, 
@@ -12,6 +13,7 @@ import {
 } from 'lucide-react';
 
 const About: React.FC = () => {
+  const navigate = useNavigate();
   const [showTrialModal, setShowTrialModal] = useState(false);
   const [showDocModal, setShowDocModal] = useState(false);
 
@@ -268,28 +270,72 @@ const About: React.FC = () => {
               <div className="border-b border-gray-200 pb-4">
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">Getting Started</h4>
                 <p className="text-gray-600 mb-3">Learn how to set up your first project with Opsless.</p>
-                <a href="#" className="text-blue-600 hover:text-blue-800 flex items-center">
+                <button 
+                  onClick={() => {
+                    handleCloseModal();
+                    navigate('/help');
+                    // Scroll to getting started section
+                    setTimeout(() => {
+                      const element = document.getElementById('getting-started-guide');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }, 100);
+                  }}
+                  className="text-blue-600 hover:text-blue-800 flex items-center cursor-pointer"
+                >
                   Read Guide <ExternalLink className="h-4 w-4 ml-1" />
-                </a>
+                </button>
               </div>
               <div className="border-b border-gray-200 pb-4">
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">API Reference</h4>
                 <p className="text-gray-600 mb-3">Complete API documentation for developers.</p>
-                <a href="#" className="text-blue-600 hover:text-blue-800 flex items-center">
+                <button 
+                  onClick={() => {
+                    handleCloseModal();
+                    navigate('/help');
+                    // Scroll to API reference section
+                    setTimeout(() => {
+                      const element = document.getElementById('api-reference');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }, 100);
+                  }}
+                  className="text-blue-600 hover:text-blue-800 flex items-center cursor-pointer"
+                >
                   View API Docs <ExternalLink className="h-4 w-4 ml-1" />
-                </a>
+                </button>
               </div>
               <div className="border-b border-gray-200 pb-4">
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">Tutorials</h4>
                 <p className="text-gray-600 mb-3">Step-by-step tutorials for common use cases.</p>
-                <a href="#" className="text-blue-600 hover:text-blue-800 flex items-center">
+                <button 
+                  onClick={() => {
+                    handleCloseModal();
+                    navigate('/help');
+                    // Scroll to tutorials section
+                    setTimeout(() => {
+                      const element = document.getElementById('tutorials');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }, 100);
+                  }}
+                  className="text-blue-600 hover:text-blue-800 flex items-center cursor-pointer"
+                >
                   Browse Tutorials <ExternalLink className="h-4 w-4 ml-1" />
-                </a>
+                </button>
               </div>
               <div>
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">Community</h4>
                 <p className="text-gray-600 mb-3">Join our community for support and discussions.</p>
-                <a href="#" className="text-blue-600 hover:text-blue-800 flex items-center">
+                <a 
+                  href="https://github.com/opsless/community" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 flex items-center"
+                >
                   Join Community <ExternalLink className="h-4 w-4 ml-1" />
                 </a>
               </div>

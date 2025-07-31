@@ -4,8 +4,8 @@ import { collection, addDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../config/firebase';
 import { Project, ProjectFormData, DeploymentConfig } from '../../types';
+import Logo from '../Logo';
 import { 
-  Rocket, 
   Database, 
   Loader2,
   Plus,
@@ -715,7 +715,7 @@ const ProjectCreator: React.FC<ProjectCreatorProps> = ({ onComplete, isModal = f
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 bg-blue-100 rounded-lg">
-            <Rocket className="w-6 h-6 text-blue-600" />
+            <Logo size="md" showText={false} className="text-blue-600" />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Create New Project</h2>
@@ -761,7 +761,7 @@ const ProjectCreator: React.FC<ProjectCreatorProps> = ({ onComplete, isModal = f
                   </>
                 ) : (
                   <>
-                    <Rocket className="w-4 h-4" />
+                    <Logo size="sm" showText={false} className="text-white" />
                     Create & Deploy
                   </>
                 )}

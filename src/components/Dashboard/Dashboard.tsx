@@ -3,9 +3,9 @@ import { collection, query, where, getDocs, orderBy, limit, doc, getDoc } from '
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../config/firebase';
 import { Project, Deployment, DashboardStats } from '../../types';
+import Logo from '../Logo';
 import { 
   Plus, 
-  Rocket, 
   GitBranch, 
   Clock, 
   CheckCircle, 
@@ -19,6 +19,7 @@ import ProjectCard from './ProjectCard';
 import StatsCard from './StatsCard';
 import CredentialsSetup from '../Credentials/CredentialsSetup';
 import ProjectCreator from '../Projects/ProjectCreator';
+import PipelineLogs from '../Logs/PipelineLogs';
 import toast from 'react-hot-toast';
 
 const Dashboard: React.FC = () => {
@@ -36,6 +37,7 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showCredentialsModal, setShowCredentialsModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
+  const [showPipelineLogs, setShowPipelineLogs] = useState(false);
   const [hasCredentials, setHasCredentials] = useState(false);
 
   const loadDashboardData = useCallback(async () => {
@@ -217,7 +219,7 @@ const Dashboard: React.FC = () => {
               className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
             >
               <div className="p-2 bg-blue-100 rounded-lg">
-                <Rocket className="w-5 h-5 text-blue-600" />
+                <Logo size="sm" showText={false} className="text-blue-600" />
               </div>
               <div className="text-left">
                 <h3 className="font-medium text-gray-900">Deploy New Project</h3>
@@ -250,6 +252,19 @@ const Dashboard: React.FC = () => {
                 <p className="text-sm text-gray-600">Monitor performance</p>
               </div>
             </button>
+
+            <button
+              onClick={() => setShowPipelineLogs(true)}
+              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors"
+            >
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Activity className="w-5 h-5 text-purple-600" />
+              </div>
+              <div className="text-left">
+                <h3 className="font-medium text-gray-900">Pipeline Logs</h3>
+                <p className="text-sm text-gray-600">Real-time execution logs</p>
+              </div>
+            </button>
           </div>
         </div>
 
@@ -273,7 +288,6 @@ const Dashboard: React.FC = () => {
               <div className="p-6">
                 {projects.length === 0 ? (
                   <div className="text-center py-12">
-                    <Rocket className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No projects yet</h3>
                     <p className="text-gray-600 mb-6">Get started by creating your first project</p>
                     <button
@@ -417,6 +431,19 @@ const Dashboard: React.FC = () => {
               >
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPipelineLogs && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <PipelineLogs 
+                pipelineId="demo-pipeline" 
+                onClose={() => setShowPipelineLogs(false)} 
+              />
             </div>
           </div>
         </div>
