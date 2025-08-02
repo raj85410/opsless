@@ -95,6 +95,7 @@ const Navbar: React.FC = React.memo(() => {
     { name: 'Dashboard', href: '/dashboard', icon: <Logo size="sm" showText={false} className="text-blue-600" /> },
     { name: 'Monitoring', href: '/monitoring', icon: <BarChart3 className="w-4 h-4" /> },
     { name: 'Credentials', href: '/credentials', icon: <Shield className="w-4 h-4" /> },
+    { name: 'AWS Credentials', href: '/aws-credentials', icon: <Shield className="w-4 h-4" /> },
     { name: 'Logs', href: '/logs', icon: <FileText className="w-4 h-4" /> }
   ];
 

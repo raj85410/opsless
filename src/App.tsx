@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout/Layout';
 
+
 // Lazy load components
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -12,10 +13,14 @@ const Login = lazy(() => import('./components/Auth/Login'));
 const Signup = lazy(() => import('./components/Auth/Signup'));
 const Dashboard = lazy(() => import('./components/Dashboard/Dashboard'));
 const MonitoringDashboard = lazy(() => import('./components/Dashboard/MonitoringDashboard'));
+
+// ✅ Make sure this file exists: src/components/Logs/LogViewer.tsx
 const LogViewer = lazy(() => import('./components/Logs/LogViewer'));
+
 const PipelineLogsDemo = lazy(() => import('./pages/PipelineLogsDemo'));
 const ChatBot = lazy(() => import('./components/Chat/ChatBot'));
 const CredentialsSetup = lazy(() => import('./components/Credentials/CredentialsSetup'));
+const AWSCredentialsSetup = lazy(() => import('./components/AWSCredentialsSetup'));
 const ProjectCreator = lazy(() => import('./components/Projects/ProjectCreator'));
 const Profile = lazy(() => import('./pages/Profile'));
 
@@ -94,14 +99,14 @@ function AppContent() {
               } 
             />
 
-            {/* <Route 
+            <Route 
               path="/logs" 
               element={
                 <ProtectedRoute>
                   <LogViewer />
                 </ProtectedRoute>
               } 
-            /> */}
+            />
 
             <Route 
               path="/pipeline-logs" 
@@ -117,6 +122,15 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <CredentialsSetup />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/aws-credentials" 
+              element={
+                <ProtectedRoute>
+                  <AWSCredentialsSetup />
                 </ProtectedRoute>
               } 
             />
