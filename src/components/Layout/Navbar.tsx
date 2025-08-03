@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useSearch } from '../../hooks/useSearch';
+import { useAWS } from '../../hooks/useAWS';
 import Logo from '../Logo';
 import { 
   Menu, 
@@ -11,13 +13,18 @@ import {
   Shield,
   BarChart3,
   FileText,
-  MessageCircle
+  MessageCircle,
+  Search,
+  Cloud,
+  CreditCard
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ProfilePicture from '../Profile/ProfilePicture';
 
 const Navbar: React.FC = React.memo(() => {
   const { currentUser, logout } = useAuth();
+  const { searchTerm, setSearchTerm, handleGlobalSearch } = useSearch();
+  const { hasCredentials } = useAWS();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showLiveChat, setShowLiveChat] = useState(false);
   const [activeTab, setActiveTab] = useState('General');
@@ -25,6 +32,22 @@ const Navbar: React.FC = React.memo(() => {
   const [chatInput, setChatInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const location = useLocation();
+
+  // Keyboard shortcut for search (Ctrl/Cmd + K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        const searchInput = document.getElementById('global-search-input') as HTMLInputElement;
+        if (searchInput) {
+          searchInput.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -94,11 +117,11 @@ const Navbar: React.FC = React.memo(() => {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: <Logo size="sm" showText={false} className="text-blue-600" /> },
     { name: 'Monitoring', href: '/monitoring', icon: <BarChart3 className="w-4 h-4" /> },
-    { name: 'Credentials', href: '/credentials', icon: <Shield className="w-4 h-4" /> },
-    { name: 'AWS Credentials', href: '/aws-credentials', icon: <Shield className="w-4 h-4" /> },
+    ...(hasCredentials ? [{ name: 'AWS Services', href: '/aws-services', icon: <Cloud className="w-4 h-4" /> }] : []),
     { name: 'Logs', href: '/logs', icon: <FileText className="w-4 h-4" /> },
     { name: 'AI Assistant', href: '/ai-assistant', icon: <MessageCircle className="w-4 h-4" /> },
-    { name: 'Support', href: '/support', icon: <MessageCircle className="w-4 h-4" /> }
+    { name: 'Support', href: '/support', icon: <MessageCircle className="w-4 h-4" /> },
+    { name: 'Pricing', href: '/payment', icon: <CreditCard className="w-4 h-4" /> }
   ];
 
   return (
@@ -113,6 +136,22 @@ const Navbar: React.FC = React.memo(() => {
               </div>
               <span className="text-xl font-bold text-gray-900">Opsless</span>
             </Link>
+          </div>
+
+          {/* Global Search Bar */}
+          <div className="hidden md:flex flex-1 max-w-md mx-8">
+            <form onSubmit={handleGlobalSearch} className="relative w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                id="global-search-input"
+                type="text"
+                placeholder="Search help articles, guides, troubleshooting... (Ctrl+K)"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+                title="Search for help articles, guides, and troubleshooting. Try keywords like 'getting started', 'billing', 'troubleshoot', 'setup'"
+              />
+            </form>
           </div>
 
           {/* Desktop Navigation */}
@@ -133,6 +172,17 @@ const Navbar: React.FC = React.memo(() => {
                     <span>{item.name}</span>
                   </Link>
                 ))}
+                
+                {/* Connect AWS Account Button (when not connected) */}
+                {!hasCredentials && (
+                  <Link
+                    to="/credentials"
+                    className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700"
+                  >
+                    <Cloud className="w-4 h-4" />
+                    <span>Connect AWS Account</span>
+                  </Link>
+                )}
                 
                 {/* Live Chat Button */}
                 <button
@@ -262,6 +312,21 @@ const Navbar: React.FC = React.memo(() => {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden">
+            {/* Mobile Search Bar */}
+            <div className="px-2 pt-2 pb-3 border-b border-gray-200">
+              <form onSubmit={handleGlobalSearch} className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  type="text"
+                  placeholder="Search help articles, guides..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  title="Search for help articles, guides, and troubleshooting"
+                />
+              </form>
+            </div>
+            
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200">
               {currentUser ? (
                 <>
@@ -281,6 +346,18 @@ const Navbar: React.FC = React.memo(() => {
                     </Link>
                   ))}
                   
+                  {/* Connect AWS Account Button (mobile) */}
+                  {!hasCredentials && (
+                    <Link
+                      to="/credentials"
+                      className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Cloud className="w-4 h-4" />
+                      <span>Connect AWS Account</span>
+                    </Link>
+                  )}
+                  
                   {/* Mobile Live Chat Button */}
                   <button
                     onClick={() => {
@@ -297,13 +374,23 @@ const Navbar: React.FC = React.memo(() => {
                       <p className="font-medium">{currentUser.displayName || 'User'}</p>
                       <p className="text-gray-500">{currentUser.email}</p>
                     </div>
+                    {hasCredentials && (
+                      <Link
+                        to="/aws-services"
+                        className="flex items-center space-x-2 px-3 py-2 text-base text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Cloud className="w-4 h-4" />
+                        <span>AWS Services</span>
+                      </Link>
+                    )}
                     <Link
-                      to="/credentials"
+                      to="/payment"
                       className="flex items-center space-x-2 px-3 py-2 text-base text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      <Shield className="w-4 h-4" />
-                      <span>Credentials</span>
+                      <CreditCard className="w-4 h-4" />
+                      <span>Pricing</span>
                     </Link>
                     <Link
                       to="/settings"

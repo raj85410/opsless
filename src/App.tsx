@@ -2,6 +2,8 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
+import { SearchProvider } from './contexts/SearchContext';
+import { AWSProvider } from './contexts/AWSContext';
 import { useAuth } from './hooks/useAuth';
 import Layout from './components/Layout/Layout';
 
@@ -22,6 +24,8 @@ const PipelineLogsDemo = lazy(() => import('./pages/PipelineLogsDemo'));
 const ChatBot = lazy(() => import('./components/Chat/ChatBot'));
 const CredentialsSetup = lazy(() => import('./components/Credentials/CredentialsSetup'));
 const AWSCredentialsSetup = lazy(() => import('./components/AWSCredentialsSetup'));
+const AWSServicesManager = lazy(() => import('./components/AWS/AWSServicesManager'));
+const PaymentCards = lazy(() => import('./components/Payment/PaymentCards'));
 const ProjectCreator = lazy(() => import('./components/Projects/ProjectCreator'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Support = lazy(() => import('./pages/Support'));
@@ -143,6 +147,20 @@ function AppContent() {
             />
 
             <Route 
+              path="/aws-services" 
+              element={
+                <ProtectedRoute>
+                  <AWSServicesManager />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/payment" 
+              element={<PaymentCards />} 
+            />
+
+            <Route 
               path="/projects/new" 
               element={
                 <ProtectedRoute>
@@ -235,7 +253,11 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <SearchProvider>
+          <AWSProvider>
+            <AppContent />
+          </AWSProvider>
+        </SearchProvider>
       </AuthProvider>
     </Router>
   );

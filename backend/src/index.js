@@ -11,6 +11,7 @@ import { Server } from 'socket.io';
 // Import routes
 import awsRoutes from './routes/aws.js';
 import subscriptionRoutes from './routes/subscription.js';
+import razorpayRoutes from './routes/razorpay.js';
 
 // Load environment variables
 dotenv.config();
@@ -40,125 +41,63 @@ app.use(cors({
   credentials: true
 }));
 app.use(compression());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(morgan('combined'));
 app.use(limiter);
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'OK',
+  res.json({ 
+    status: 'OK', 
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development',
-    message: 'Opsless Backend is running! 🚀'
+    uptime: process.uptime()
   });
 });
 
-// Basic API routes
-app.get('/api', (req, res) => {
-  res.json({
-    message: 'Opsless API is running!',
-    version: '1.0.0',
-    endpoints: {
-      health: '/health',
-      api: '/api',
-      aws: '/api/aws',
-      subscription: '/api/subscription'
-    }
-  });
-});
-
-// Mount API routes
+// API Routes
 app.use('/api/aws', awsRoutes);
 app.use('/api/subscription', subscriptionRoutes);
+app.use('/api/razorpay', razorpayRoutes);
 
-// Subscription routes (basic)
-app.get('/api/subscription/plans', (req, res) => {
-  res.json({
-    success: true,
-    plans: [
-      {
-        id: 1,
-        name: "Free Trial",
-        description: "3-day access to explore Opsless features",
-        price: 0,
-        duration_days: 3,
-        features: ["Basic features", "1 project", "3 deployments"]
-      },
-      {
-        id: 2,
-        name: "One Week",
-        description: "Perfect for short-term projects",
-        price: 100,
-        duration_days: 7,
-        features: ["5 projects", "20 deployments", "Priority support"]
-      },
-      {
-        id: 3,
-        name: "One Month",
-        description: "Ideal for monthly projects",
-        price: 180,
-        duration_days: 30,
-        features: ["10 projects", "50 deployments", "Auto-scaling"]
-      }
-    ]
-  });
-});
-
-app.get('/api/subscription/current', (req, res) => {
-  res.json({
-    success: true,
-    subscription: {
-      id: 1,
-      plan_id: 1,
-      status: 'active',
-      current_period_start: new Date().toISOString(),
-      current_period_end: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
-    }
-  });
-});
-
-// Socket.IO connection
+// Socket.IO connection handling
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
-  
+
+  socket.on('join-deployment', (deploymentId) => {
+    socket.join(`deployment-${deploymentId}`);
+    console.log(`Client ${socket.id} joined deployment ${deploymentId}`);
+  });
+
+  socket.on('leave-deployment', (deploymentId) => {
+    socket.leave(`deployment-${deploymentId}`);
+    console.log(`Client ${socket.id} left deployment ${deploymentId}`);
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
-  });
-  
-  socket.on('message', (data) => {
-    console.log('Received message:', data);
-    socket.emit('response', { message: 'Message received!' });
   });
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  res.status(500).json({
-    success: false,
-    message: 'Internal server error',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+  res.status(500).json({ 
+    error: 'Internal server error',
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
   });
 });
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route not found',
-    path: req.originalUrl
-  });
+  res.status(404).json({ error: 'Route not found' });
 });
 
 // Start server
 server.listen(PORT, () => {
-  console.log(`🚀 Opsless Backend running on port ${PORT}`);
+  console.log(`🚀 Opsless Backend Server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
-  console.log(`🔗 API: http://localhost:${PORT}/api`);
-  console.log(`💳 Subscription API: http://localhost:${PORT}/api/subscription/plans`);
+  console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
 });
 
 // Graceful shutdown
@@ -176,12 +115,7 @@ process.on('SIGINT', () => {
   });
 });
 
-// Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  process.exit(1);
-});
-
+// Unhandled promise rejection handler
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
   process.exit(1);

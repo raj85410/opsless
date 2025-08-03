@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, Filter, Download, RefreshCw, Play, Pause, Trash2 } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { Search, Download, RefreshCw, Play, Pause, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface LogEntry {
@@ -24,7 +24,7 @@ const LogViewer: React.FC = () => {
   const logsEndRef = useRef<HTMLDivElement>(null);
 
   // Mock data for demonstration
-  const mockLogs: LogEntry[] = [
+  const mockLogs: LogEntry[] = useMemo(() => [
     {
       id: '1',
       timestamp: new Date().toISOString(),
@@ -70,24 +70,14 @@ const LogViewer: React.FC = () => {
       projectId: 'proj_123',
       deploymentId: 'dep_456'
     }
-  ];
+  ], []);
 
   useEffect(() => {
     setLogs(mockLogs);
     setFilteredLogs(mockLogs);
-  }, []);
+  }, [mockLogs]);
 
-  useEffect(() => {
-    filterLogs();
-  }, [logs, searchTerm, selectedLevel, selectedSource]);
-
-  useEffect(() => {
-    if (autoScroll && logsEndRef.current) {
-      logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [filteredLogs, autoScroll]);
-
-  const filterLogs = () => {
+  const filterLogs = useCallback(() => {
     let filtered = logs;
 
     // Filter by search term
@@ -109,7 +99,17 @@ const LogViewer: React.FC = () => {
     }
 
     setFilteredLogs(filtered);
-  };
+  }, [logs, searchTerm, selectedLevel, selectedSource]);
+
+  useEffect(() => {
+    filterLogs();
+  }, [filterLogs]);
+
+  useEffect(() => {
+    if (autoScroll && logsEndRef.current) {
+      logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [filteredLogs, autoScroll]);
 
   const clearLogs = () => {
     setLogs([]);
@@ -124,7 +124,7 @@ const LogViewer: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       setLogs([...mockLogs, ...logs.slice(0, 5)]);
       toast.success('Logs refreshed');
-    } catch (error) {
+    } catch {
       toast.error('Failed to refresh logs');
     } finally {
       setIsLoading(false);

@@ -1,25 +1,32 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { collection, query, where, getDocs, orderBy, limit, doc, getDoc } from 'firebase/firestore';
-import { useAuth } from '../../hooks/useAuth';
-import { db } from '../../config/firebase';
-import { Project, Deployment, DashboardStats } from '../../types';
-import Logo from '../Logo';
 import { 
   Plus, 
   GitBranch, 
-  Clock, 
+  Activity, 
   CheckCircle, 
-  XCircle, 
-  AlertCircle,
+  Clock, 
   Shield,
-  BarChart3,
-  Activity
+  ExternalLink,
+  Settings
 } from 'lucide-react';
-import ProjectCard from './ProjectCard';
+import { useAuth } from '../../hooks/useAuth';
+import { 
+  collection, 
+  query, 
+  where, 
+  orderBy, 
+  limit, 
+  getDocs, 
+  doc, 
+  getDoc 
+} from 'firebase/firestore';
+import { db } from '../../config/firebase';
+import { Project, Deployment, DashboardStats } from '../../types';
 import StatsCard from './StatsCard';
+import ProjectCard from './ProjectCard';
 import CredentialsSetup from '../Credentials/CredentialsSetup';
 import ProjectCreator from '../Projects/ProjectCreator';
-import PipelineLogs from '../Logs/PipelineLogs';
+import PipelineLogsDemo from '../../pages/PipelineLogsDemo';
 import toast from 'react-hot-toast';
 
 const Dashboard: React.FC = () => {
@@ -136,7 +143,10 @@ const Dashboard: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p className="text-gray-600 text-sm">Loading dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -201,7 +211,7 @@ const Dashboard: React.FC = () => {
             trendDirection="up"
           />
           <StatsCard
-            title="Avg Deploy Time"
+            title="Avg Deployment Time"
             value={`${stats.averageDeploymentTime}m`}
             icon={<Clock className="w-6 h-6" />}
             color="purple"
@@ -210,190 +220,114 @@ const Dashboard: React.FC = () => {
           />
         </div>
 
-        {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button
-              onClick={() => setShowProjectModal(true)}
-              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
-            >
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Logo size="sm" showText={false} className="text-blue-600" />
-              </div>
-              <div className="text-left">
-                <h3 className="font-medium text-gray-900">Deploy New Project</h3>
-                <p className="text-sm text-gray-600">Set up automated deployment</p>
-              </div>
-            </button>
-            
-            <button
-              onClick={() => setShowCredentialsModal(true)}
-              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 transition-colors"
-            >
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <Shield className="w-5 h-5 text-orange-600" />
-              </div>
-              <div className="text-left">
-                <h3 className="font-medium text-gray-900">Manage Credentials</h3>
-                <p className="text-sm text-gray-600">Update CI/CD credentials</p>
-              </div>
-            </button>
-
-            <button
-              onClick={() => window.location.href = '/monitoring'}
-              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors"
-            >
-              <div className="p-2 bg-green-100 rounded-lg">
-                <BarChart3 className="w-5 h-5 text-green-600" />
-              </div>
-              <div className="text-left">
-                <h3 className="font-medium text-gray-900">View Analytics</h3>
-                <p className="text-sm text-gray-600">Monitor performance</p>
-              </div>
-            </button>
-
-            <button
-              onClick={() => setShowPipelineLogs(true)}
-              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors"
-            >
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Activity className="w-5 h-5 text-purple-600" />
-              </div>
-              <div className="text-left">
-                <h3 className="font-medium text-gray-900">Pipeline Logs</h3>
-                <p className="text-sm text-gray-600">Real-time execution logs</p>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Projects */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900">Your Projects</h2>
+        {/* Recent Projects */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Recent Projects</h2>
+              <p className="text-gray-600 text-sm">Your latest projects and their status</p>
+            </div>
+            <div className="p-6">
+              {projects.length === 0 ? (
+                <div className="text-center py-8">
+                  <GitBranch className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No projects yet</h3>
+                  <p className="text-gray-600 mb-4">Create your first project to get started</p>
                   <button
                     onClick={() => setShowProjectModal(true)}
-                    className="flex items-center gap-2 px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     <Plus className="w-4 h-4" />
-                    Add Project
+                    Create Project
                   </button>
                 </div>
-              </div>
-              
-              <div className="p-6">
-                {projects.length === 0 ? (
-                  <div className="text-center py-12">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No projects yet</h3>
-                    <p className="text-gray-600 mb-6">Get started by creating your first project</p>
-                    <button
-                      onClick={() => setShowProjectModal(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mx-auto"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Create First Project
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {projects.map(project => (
-                      <ProjectCard key={project.id} project={project} />
-                    ))}
-                  </div>
-                )}
-              </div>
+              ) : (
+                <div className="space-y-4">
+                  {projects.slice(0, 5).map((project) => (
+                    <ProjectCard key={project.id} project={project} />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
           {/* Recent Deployments */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Recent Deployments</h2>
-              </div>
-              
-              <div className="p-6">
-                {recentDeployments.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Clock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600">No deployments yet</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {recentDeployments.map(deployment => (
-                      <div key={deployment.id} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg">
-                        <div className={`w-2 h-2 rounded-full ${
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Recent Deployments</h2>
+              <p className="text-gray-600 text-sm">Latest deployment activities</p>
+            </div>
+            <div className="p-6">
+              {recentDeployments.length === 0 ? (
+                <div className="text-center py-8">
+                  <Activity className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No deployments yet</h3>
+                  <p className="text-gray-600">Deployments will appear here once you create projects</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {recentDeployments.map((deployment) => (
+                    <div key={deployment.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-3 h-3 rounded-full ${
                           deployment.status === 'success' ? 'bg-green-500' :
                           deployment.status === 'failed' ? 'bg-red-500' :
-                          deployment.status === 'pending' ? 'bg-yellow-500' :
-                          'bg-blue-500'
-                        }`} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
-                            {deployment.version}
+                          'bg-yellow-500'
+                        }`}></div>
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {projects.find(p => p.id === deployment.projectId)?.name || 'Unknown Project'}
                           </p>
-                          <p className="text-xs text-gray-500">
-                            {new Date(deployment.startedAt).toLocaleDateString()}
+                          <p className="text-sm text-gray-600">
+                            {deployment.status} • {deployment.startedAt instanceof Date ? deployment.startedAt.toLocaleDateString() : 'Unknown date'}
                           </p>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {deployment.status === 'success' && <CheckCircle className="w-4 h-4 text-green-500" />}
-                          {deployment.status === 'failed' && <XCircle className="w-4 h-4 text-red-500" />}
-                          {deployment.status === 'pending' && <Clock className="w-4 h-4 text-yellow-500" />}
-                          {['building', 'testing', 'deploying'].includes(deployment.status) && (
-                            <AlertCircle className="w-4 h-4 text-blue-500" />
-                          )}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                      <div className="flex items-center space-x-2">
+                        <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-200">
+                          <Settings className="w-4 h-4" />
+                        </button>
+                        <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-200">
+                          <ExternalLink className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+          </div>
+        </div>
 
-            {/* System Status */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 mt-6">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">System Status</h2>
-              </div>
-              
-              <div className="p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm text-gray-900">CI/CD Pipeline</span>
-                  </div>
-                  <span className="text-sm text-green-600 font-medium">Operational</span>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm text-gray-900">Build System</span>
-                  </div>
-                  <span className="text-sm text-green-600 font-medium">Operational</span>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm text-gray-900">Deployment Engine</span>
-                  </div>
-                  <span className="text-sm text-green-600 font-medium">Operational</span>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm text-gray-900">Monitoring</span>
-                  </div>
-                  <span className="text-sm text-green-600 font-medium">Operational</span>
-                </div>
-              </div>
+        {/* Quick Actions */}
+        <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900">Quick Actions</h2>
+            <p className="text-gray-600 text-sm">Common tasks and shortcuts</p>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <button
+                onClick={() => setShowProjectModal(true)}
+                className="flex items-center justify-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+              >
+                <Plus className="w-5 h-5 text-blue-600" />
+                <span className="font-medium text-gray-900">Create New Project</span>
+              </button>
+              <button
+                onClick={() => setShowPipelineLogs(true)}
+                className="flex items-center justify-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors"
+              >
+                <Activity className="w-5 h-5 text-green-600" />
+                <span className="font-medium text-gray-900">View Pipeline Logs</span>
+              </button>
+              <button
+                onClick={() => setShowCredentialsModal(true)}
+                className="flex items-center justify-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 transition-colors"
+              >
+                <Shield className="w-5 h-5 text-orange-600" />
+                <span className="font-medium text-gray-900">Manage Credentials</span>
+              </button>
             </div>
           </div>
         </div>
@@ -402,16 +336,15 @@ const Dashboard: React.FC = () => {
       {/* Modals */}
       {showCredentialsModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <CredentialsSetup onComplete={handleCredentialsSaved} isModal={true} />
-            </div>
-            <div className="p-6 border-t border-gray-200 flex justify-end">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Setup AWS Credentials</h2>
+              <CredentialsSetup onComplete={handleCredentialsSaved} />
               <button
                 onClick={() => setShowCredentialsModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="mt-4 px-4 py-2 text-gray-600 hover:text-gray-800"
               >
-                Close
+                Cancel
               </button>
             </div>
           </div>
@@ -420,16 +353,15 @@ const Dashboard: React.FC = () => {
 
       {showProjectModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <ProjectCreator onComplete={handleProjectCreated} isModal={true} />
-            </div>
-            <div className="p-6 border-t border-gray-200 flex justify-end">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Create New Project</h2>
+              <ProjectCreator onComplete={handleProjectCreated} />
               <button
                 onClick={() => setShowProjectModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="mt-4 px-4 py-2 text-gray-600 hover:text-gray-800"
               >
-                Close
+                Cancel
               </button>
             </div>
           </div>
@@ -438,12 +370,16 @@ const Dashboard: React.FC = () => {
 
       {showPipelineLogs && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <PipelineLogs 
-                pipelineId="demo-pipeline" 
-                onClose={() => setShowPipelineLogs(false)} 
-              />
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Pipeline Logs</h2>
+              <PipelineLogsDemo />
+              <button
+                onClick={() => setShowPipelineLogs(false)}
+                className="mt-4 px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

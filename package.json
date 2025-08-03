@@ -30,7 +30,8 @@
     "recharts": "^2.15.4",
     "tailwind-merge": "^2.6.0",
     "@stripe/stripe-js": "^2.4.0",
-    "@stripe/react-stripe-js": "^2.4.0"
+    "@stripe/react-stripe-js": "^2.4.0",
+    "razorpay": "^2.9.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

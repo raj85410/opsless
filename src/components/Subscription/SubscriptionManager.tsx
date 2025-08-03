@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   CreditCard, 
@@ -7,7 +7,6 @@ import {
   CheckCircle, 
   XCircle,
   RefreshCw,
-  Settings,
   TrendingUp,
   Users,
   Zap
@@ -46,19 +45,15 @@ interface Usage {
 }
 
 const SubscriptionManager: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { firebaseUser } = useAuth();
   const navigate = useNavigate();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [usage, setUsage] = useState<Usage | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
 
-  useEffect(() => {
-    fetchSubscriptionData();
-  }, []);
-
-  const fetchSubscriptionData = async () => {
-    if (!currentUser) return;
+  const fetchSubscriptionData = useCallback(async () => {
+    if (!firebaseUser) return;
 
     try {
       setLoading(true);
@@ -66,7 +61,7 @@ const SubscriptionManager: React.FC = () => {
       // Fetch subscription
       const subResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/subscription/current`, {
         headers: {
-          'Authorization': `Bearer ${await currentUser.getIdToken()}`
+          'Authorization': `Bearer ${await firebaseUser.getIdToken()}`
         }
       });
       
@@ -78,7 +73,7 @@ const SubscriptionManager: React.FC = () => {
       // Fetch usage
       const usageResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/subscription/usage`, {
         headers: {
-          'Authorization': `Bearer ${await currentUser.getIdToken()}`
+          'Authorization': `Bearer ${await firebaseUser.getIdToken()}`
         }
       });
       
@@ -92,7 +87,11 @@ const SubscriptionManager: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [firebaseUser]);
+
+  useEffect(() => {
+    fetchSubscriptionData();
+  }, [fetchSubscriptionData]);
 
   const handleCancelSubscription = async () => {
     if (!subscription) return;
@@ -107,7 +106,7 @@ const SubscriptionManager: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await currentUser?.getIdToken()}`
+          'Authorization': `Bearer ${await firebaseUser?.getIdToken()}`
         },
         body: JSON.stringify({
           cancelAtPeriodEnd: true
