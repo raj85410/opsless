@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { db } from '../../config/firebase';
 import { Credentials, CredentialsFormData } from '../../types';
 import { Eye, EyeOff, Shield, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';

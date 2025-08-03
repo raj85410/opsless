@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+// import { useAuth } from '../contexts/AuthContext';
 import { 
   Shield, 
   Key, 
@@ -7,21 +7,23 @@ import {
   Eye, 
   EyeOff, 
   CheckCircle, 
-  AlertCircle,
   Loader2,
   Info
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface AWSCredentials {
+  id?: string;
   accessKeyId: string;
   secretAccessKey: string;
   region: string;
   accountId?: string;
+  account_id?: string;
+  created_at?: string;
 }
 
 const AWSCredentialsSetup: React.FC = () => {
-  const { currentUser } = useAuth();
+  // const { currentUser } = useAuth();
   const [credentials, setCredentials] = useState<AWSCredentials>({
     accessKeyId: '',
     secretAccessKey: '',
@@ -31,7 +33,7 @@ const AWSCredentialsSetup: React.FC = () => {
   const [showSecretKey, setShowSecretKey] = useState(false);
   const [loading, setLoading] = useState(false);
   const [testing, setTesting] = useState(false);
-  const [existingCredentials, setExistingCredentials] = useState<any[]>([]);
+  const [existingCredentials, setExistingCredentials] = useState<AWSCredentials[]>([]);
 
   const regions = [
     { value: 'us-east-1', label: 'US East (N. Virginia)' },
@@ -226,12 +228,12 @@ const AWSCredentialsSetup: React.FC = () => {
                         Region: {regions.find(r => r.value === cred.region)?.label || cred.region}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Account ID: {cred.account_id || 'Not specified'} • Added: {new Date(cred.created_at).toLocaleDateString()}
+                        Account ID: {cred.account_id || 'Not specified'} • Added: {cred.created_at ? new Date(cred.created_at).toLocaleDateString() : 'Unknown'}
                       </p>
                     </div>
                   </div>
                   <button
-                    onClick={() => deleteCredential(cred.id)}
+                    onClick={() => cred.id && deleteCredential(cred.id)}
                     className="text-red-600 hover:text-red-800 text-sm font-medium"
                   >
                     Delete

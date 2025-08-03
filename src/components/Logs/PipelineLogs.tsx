@@ -175,7 +175,7 @@ const PipelineLogs: React.FC<PipelineLogsProps> = ({ pipelineId, onClose }) => {
       setIsStreaming(false);
       setIsConnected(false);
       setIsLoading(false);
-      toast.info('Pipeline logs streaming stopped');
+      toast('Pipeline logs streaming stopped');
     } catch (error) {
       console.error('Error stopping stream:', error);
       toast.error('Failed to stop pipeline logs stream');

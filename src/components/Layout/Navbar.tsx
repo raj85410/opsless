@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import Logo from '../Logo';
 import { 
   Menu, 
@@ -96,7 +96,9 @@ const Navbar: React.FC = React.memo(() => {
     { name: 'Monitoring', href: '/monitoring', icon: <BarChart3 className="w-4 h-4" /> },
     { name: 'Credentials', href: '/credentials', icon: <Shield className="w-4 h-4" /> },
     { name: 'AWS Credentials', href: '/aws-credentials', icon: <Shield className="w-4 h-4" /> },
-    { name: 'Logs', href: '/logs', icon: <FileText className="w-4 h-4" /> }
+    { name: 'Logs', href: '/logs', icon: <FileText className="w-4 h-4" /> },
+    { name: 'AI Assistant', href: '/ai-assistant', icon: <MessageCircle className="w-4 h-4" /> },
+    { name: 'Support', href: '/support', icon: <MessageCircle className="w-4 h-4" /> }
   ];
 
   return (
@@ -148,6 +150,12 @@ const Navbar: React.FC = React.memo(() => {
                   className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   About
+                </Link>
+                <Link
+                  to="/pricing"
+                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Pricing
                 </Link>
                 <Link
                   to="/help"

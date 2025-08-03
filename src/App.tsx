@@ -1,14 +1,15 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './hooks/useAuth';
 import Layout from './components/Layout/Layout';
 
 
 // Lazy load components
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
-const Help = lazy(() => import('./pages/Help'));
+// const Help = lazy(() => import('./pages/Help'));
 const Login = lazy(() => import('./components/Auth/Login'));
 const Signup = lazy(() => import('./components/Auth/Signup'));
 const Dashboard = lazy(() => import('./components/Dashboard/Dashboard'));
@@ -23,6 +24,11 @@ const CredentialsSetup = lazy(() => import('./components/Credentials/Credentials
 const AWSCredentialsSetup = lazy(() => import('./components/AWSCredentialsSetup'));
 const ProjectCreator = lazy(() => import('./components/Projects/ProjectCreator'));
 const Profile = lazy(() => import('./pages/Profile'));
+const Support = lazy(() => import('./pages/Support'));
+const HelpNew = lazy(() => import('./pages/HelpNew'));
+const DevOpsAssistant = lazy(() => import('./components/AI/DevOpsAssistant'));
+const QuickLinksTest = lazy(() => import('./components/Support/QuickLinksTest'));
+const Pricing = lazy(() => import('./pages/Pricing'));
 
 // Spinner while loading lazy components
 const LoadingSpinner: React.FC = () => (
@@ -60,8 +66,9 @@ function AppContent() {
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/help" element={<Help />} />
+<Route path="/about" element={<About />} />
+<Route path="/help" element={<HelpNew />} />
+<Route path="/pricing" element={<Pricing />} />
 
             <Route 
               path="/login" 
@@ -149,6 +156,38 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/support" 
+              element={
+                <ProtectedRoute>
+                  <Support />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/test-links" 
+              element={
+                <ProtectedRoute>
+                  <QuickLinksTest />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/ai-assistant" 
+              element={
+                <ProtectedRoute>
+                  <div className="min-h-screen bg-gray-50 py-8">
+                    <div className="max-w-4xl mx-auto px-4">
+                      <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">DevOps AI Assistant</h1>
+                      <DevOpsAssistant />
+                    </div>
+                  </div>
                 </ProtectedRoute>
               } 
             />

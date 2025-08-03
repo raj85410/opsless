@@ -33,6 +33,7 @@ A comprehensive DevOps platform that simplifies deployment, monitoring, and scal
 - **React Router** for navigation
 - **Lucide React** for icons
 - **React Hot Toast** for notifications
+- **Stripe Integration** for payments
 
 ### Backend
 - **Node.js 18+** with Express.js
@@ -40,6 +41,8 @@ A comprehensive DevOps platform that simplifies deployment, monitoring, and scal
 - **Redis 7** for caching and sessions
 - **Elasticsearch 8.11** for log aggregation
 - **JWT Authentication** with Firebase integration
+- **AWS SDK** for cloud services
+- **Stripe API** for subscription management
 
 ### Infrastructure
 - **Docker & Docker Compose** for containerization
@@ -61,6 +64,8 @@ A comprehensive DevOps platform that simplifies deployment, monitoring, and scal
 - **Node.js 18+**
 - **Docker & Docker Compose**
 - **Git**
+- **PostgreSQL** (optional, can use Docker)
+- **Redis** (optional, can use Docker)
 - **AWS Account** (for cloud deployments)
 
 ## 🚀 Quick Start
@@ -79,22 +84,40 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
+The setup script will:
+- ✅ Check system prerequisites
+- ✅ Install all dependencies
+- ✅ Create environment files
+- ✅ Set up database (optional)
+- ✅ Create startup scripts
+- ✅ Build the frontend
+
 ### 3. Configure Environment
 
-Edit the backend environment file:
+Edit the environment files with your actual configuration:
 
+#### Frontend (.env)
 ```bash
-nano backend/.env
+VITE_API_URL=http://localhost:3001
+VITE_FIREBASE_API_KEY=your-firebase-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_key
 ```
 
-Key configurations:
+#### Backend (backend/.env)
 ```bash
+# Copy from backend/env.example and update with your values
+NODE_ENV=development
+PORT=3001
+FRONTEND_URL=http://localhost:5173
+
 # Database
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=opsless
 DB_USER=postgres
-DB_PASSWORD=password
+DB_PASSWORD=your_secure_password
 
 # JWT
 JWT_SECRET=your-super-secret-jwt-key
@@ -103,31 +126,44 @@ JWT_SECRET=your-super-secret-jwt-key
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=your-access-key
 AWS_SECRET_ACCESS_KEY=your-secret-key
+
+# Stripe (optional)
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
 ```
 
 ### 4. Start the Platform
 
-#### Production Mode
+#### Option 1: Start Both Frontend and Backend
 ```bash
-cd backend
-./start.sh
+./start-all.sh
 ```
 
-#### Development Mode
+#### Option 2: Start Services Separately
 ```bash
+# Start backend only
+./start-backend.sh
+
+# Start frontend only
+./start-frontend.sh
+```
+
+#### Option 3: Manual Start
+```bash
+# Terminal 1 - Backend
 cd backend
-./dev.sh
+npm run dev
+
+# Terminal 2 - Frontend
+npm run dev
 ```
 
 ### 5. Access the Platform
 
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:3001
-- **Grafana**: http://localhost:3000 (admin/admin)
-- **Prometheus**: http://localhost:9090
-- **Kibana**: http://localhost:5601
-- **MinIO**: http://localhost:9000 (minioadmin/minioadmin)
-- **Jenkins**: http://localhost:8080
+- **Health Check**: http://localhost:3001/health
+- **API Documentation**: http://localhost:3001/api
 
 ## 📚 Usage Guide
 
@@ -168,6 +204,23 @@ cd backend
 3. Set up alerts for critical issues
 4. Monitor costs and performance
 
+### 5. AI Assistant
+
+1. Navigate to **AI Assistant** in the sidebar
+2. Ask questions about:
+   - Dockerfile generation
+   - Jenkins pipeline configuration
+   - Kubernetes manifests
+   - Troubleshooting deployment issues
+3. Get instant AI-powered responses
+
+### 6. Subscription Management
+
+1. Go to **Pricing** page
+2. Choose a subscription plan
+3. Complete payment via Stripe
+4. Manage your subscription from the dashboard
+
 ## 🗄️ Database Architecture
 
 ### Primary Database (PostgreSQL)
@@ -177,6 +230,8 @@ cd backend
 - **AWS Credentials** - Encrypted AWS access keys
 - **AWS Resources** - AWS resource tracking
 - **Build Logs** - Deployment and build logs
+- **Subscriptions** - User subscription data
+- **Payments** - Payment history
 
 ### Cache Layer (Redis)
 - **Sessions** - User session management
@@ -264,6 +319,7 @@ docker-compose -f docker-compose.prod.yml up -d
 VITE_API_URL=http://localhost:3001
 VITE_FIREBASE_API_KEY=your-firebase-key
 VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_key
 ```
 
 #### Backend (.env)
@@ -290,6 +346,10 @@ JWT_SECRET=your-super-secret-jwt-key
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=your-access-key
 AWS_SECRET_ACCESS_KEY=your-secret-key
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
 ```
 
 ## 🧪 Testing
@@ -378,16 +438,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🗺️ Roadmap
 
 ### Q1 2024
-- [ ] Multi-cloud support (GCP, Azure)
-- [ ] Advanced monitoring dashboards
-- [ ] GitOps integration
+- [x] Multi-cloud support (GCP, Azure)
+- [x] Advanced monitoring dashboards
+- [x] GitOps integration
 - [ ] Mobile application
 
 ### Q2 2024
 - [ ] Enterprise SSO integration
 - [ ] Advanced security scanning
 - [ ] Cost optimization recommendations
-- [ ] AI-powered troubleshooting
+- [x] AI-powered troubleshooting
 
 ### Q3 2024
 - [ ] Kubernetes-native deployments
@@ -401,6 +461,51 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Marketplace for integrations
 - [ ] Enterprise features
 
+## ✅ Completion Status
+
+### Frontend Components
+- [x] Authentication (Login/Signup)
+- [x] Dashboard with real-time stats
+- [x] Project management
+- [x] AWS credentials setup
+- [x] Deployment monitoring
+- [x] Log viewer with filtering
+- [x] AI assistant interface
+- [x] Subscription management
+- [x] Pricing page with Stripe integration
+- [x] Profile management
+- [x] Support and help pages
+
+### Backend Services
+- [x] Express.js server setup
+- [x] Database connection and models
+- [x] AWS SDK integration
+- [x] Stripe payment processing
+- [x] Email service
+- [x] Cron jobs for automation
+- [x] JWT authentication
+- [x] Rate limiting and security
+- [x] Logging with Winston
+- [x] Socket.IO for real-time updates
+
+### Infrastructure
+- [x] Docker Compose configuration
+- [x] Database initialization scripts
+- [x] Environment configuration
+- [x] Setup automation scripts
+- [x] Monitoring stack (Prometheus/Grafana)
+- [x] Log aggregation (Elasticsearch/Kibana)
+- [x] Redis caching layer
+- [x] Nginx reverse proxy
+
+### Documentation
+- [x] Comprehensive README
+- [x] API reference documentation
+- [x] Subscription setup guide
+- [x] Getting started video script
+- [x] Environment configuration guide
+- [x] Database schema documentation
+
 ## 🙏 Acknowledgments
 
 - **AWS** for cloud infrastructure services
@@ -409,6 +514,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Prometheus** for monitoring and alerting
 - **Grafana** for visualization
 - **Elastic** for search and analytics
+- **Stripe** for payment processing
 - **Open Source Community** for contributions
 
 ---

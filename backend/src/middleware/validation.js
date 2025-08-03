@@ -215,4 +215,16 @@ export const validatePassword = (password) => {
   
   const { error } = passwordSchema.validate(password);
   return !error;
-}; 
+};
+
+// Subscription validation schema
+export const subscriptionDataSchema = Joi.object({
+  planId: Joi.number().integer().min(1).required(),
+  successUrl: Joi.string().uri().optional(),
+  cancelUrl: Joi.string().uri().optional(),
+  cancelAtPeriodEnd: Joi.boolean().optional(),
+  newPlanId: Joi.number().integer().min(1).optional()
+});
+
+// Subscription validation middleware
+export const validateSubscriptionData = validateRequest(subscriptionDataSchema); 

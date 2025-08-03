@@ -9,25 +9,8 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 
 // Import routes
-import authRoutes from './routes/auth.js';
-import projectRoutes from './routes/projects.js';
-import deploymentRoutes from './routes/deployments.js';
 import awsRoutes from './routes/aws.js';
-import monitoringRoutes from './routes/monitoring.js';
-import logsRoutes from './routes/logs.js';
-
-// Import middleware
-import { authenticateToken } from './middleware/auth.js';
-import { errorHandler } from './middleware/errorHandler.js';
-import { requestLogger } from './middleware/logger.js';
-
-// Import database connection
-import { connectDatabase } from './database/connection.js';
-import { connectRedis } from './database/redis.js';
-
-// Import services
-import { initializeSocketIO } from './services/socket.js';
-import { initializeQueue } from './services/queue.js';
+import subscriptionRoutes from './routes/subscription.js';
 
 // Load environment variables
 dotenv.config();
@@ -61,7 +44,6 @@ app.use(morgan('combined'));
 app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
-app.use(requestLogger);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -69,20 +51,98 @@ app.get('/health', (req, res) => {
     status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    message: 'Opsless Backend is running! 🚀'
   });
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/projects', authenticateToken, projectRoutes);
-app.use('/api/deployments', authenticateToken, deploymentRoutes);
-app.use('/api/aws', authenticateToken, awsRoutes);
-app.use('/api/monitoring', authenticateToken, monitoringRoutes);
-app.use('/api/logs', authenticateToken, logsRoutes);
+// Basic API routes
+app.get('/api', (req, res) => {
+  res.json({
+    message: 'Opsless API is running!',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      api: '/api',
+      aws: '/api/aws',
+      subscription: '/api/subscription'
+    }
+  });
+});
+
+// Mount API routes
+app.use('/api/aws', awsRoutes);
+app.use('/api/subscription', subscriptionRoutes);
+
+// Subscription routes (basic)
+app.get('/api/subscription/plans', (req, res) => {
+  res.json({
+    success: true,
+    plans: [
+      {
+        id: 1,
+        name: "Free Trial",
+        description: "3-day access to explore Opsless features",
+        price: 0,
+        duration_days: 3,
+        features: ["Basic features", "1 project", "3 deployments"]
+      },
+      {
+        id: 2,
+        name: "One Week",
+        description: "Perfect for short-term projects",
+        price: 100,
+        duration_days: 7,
+        features: ["5 projects", "20 deployments", "Priority support"]
+      },
+      {
+        id: 3,
+        name: "One Month",
+        description: "Ideal for monthly projects",
+        price: 180,
+        duration_days: 30,
+        features: ["10 projects", "50 deployments", "Auto-scaling"]
+      }
+    ]
+  });
+});
+
+app.get('/api/subscription/current', (req, res) => {
+  res.json({
+    success: true,
+    subscription: {
+      id: 1,
+      plan_id: 1,
+      status: 'active',
+      current_period_start: new Date().toISOString(),
+      current_period_end: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+    }
+  });
+});
+
+// Socket.IO connection
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id);
+  
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+  });
+  
+  socket.on('message', (data) => {
+    console.log('Received message:', data);
+    socket.emit('response', { message: 'Message received!' });
+  });
+});
 
 // Error handling middleware
-app.use(errorHandler);
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+  });
+});
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -93,41 +153,13 @@ app.use('*', (req, res) => {
   });
 });
 
-// Initialize services
-async function initializeServices() {
-  try {
-    // Connect to databases
-    await connectDatabase();
-    await connectRedis();
-    
-    // Initialize Socket.IO
-    initializeSocketIO(io);
-    
-    // Initialize job queue
-    await initializeQueue();
-    
-    console.log('✅ All services initialized successfully');
-  } catch (error) {
-    console.error('❌ Failed to initialize services:', error);
-    process.exit(1);
-  }
-}
-
 // Start server
-async function startServer() {
-  try {
-    await initializeServices();
-    
-    server.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📊 Health check: http://localhost:${PORT}/health`);
-      console.log(`🔗 API Documentation: http://localhost:${PORT}/api/docs`);
-    });
-  } catch (error) {
-    console.error('❌ Failed to start server:', error);
-    process.exit(1);
-  }
-}
+server.listen(PORT, () => {
+  console.log(`🚀 Opsless Backend running on port ${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  console.log(`🔗 API: http://localhost:${PORT}/api`);
+  console.log(`💳 Subscription API: http://localhost:${PORT}/api/subscription/plans`);
+});
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
@@ -153,6 +185,4 @@ process.on('uncaughtException', (error) => {
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
   process.exit(1);
-});
-
-startServer(); 
+}); 

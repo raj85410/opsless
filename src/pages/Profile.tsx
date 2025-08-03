@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import ProfilePicture from '../components/Profile/ProfilePicture';
 import { User, Mail, Calendar, Shield, Save, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';

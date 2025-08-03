@@ -1,0 +1,137 @@
+{
+  "products": [
+    {
+      "name": "Free Trial",
+      "description": "3-day access to explore Opsless features",
+      "metadata": {
+        "duration_days": "3",
+        "is_recurring": "false"
+      },
+      "prices": [
+        {
+          "unit_amount": 0,
+          "currency": "usd",
+          "recurring": null
+        }
+      ]
+    },
+    {
+      "name": "One Week",
+      "description": "Perfect for short-term projects",
+      "metadata": {
+        "duration_days": "7",
+        "is_recurring": "false"
+      },
+      "prices": [
+        {
+          "unit_amount": 10000,
+          "currency": "usd",
+          "recurring": null
+        }
+      ]
+    },
+    {
+      "name": "One Month",
+      "description": "Ideal for monthly projects",
+      "metadata": {
+        "duration_days": "30",
+        "is_recurring": "false"
+      },
+      "prices": [
+        {
+          "unit_amount": 18000,
+          "currency": "usd",
+          "recurring": null
+        }
+      ]
+    },
+    {
+      "name": "Two Months",
+      "description": "Extended project support",
+      "metadata": {
+        "duration_days": "60",
+        "is_recurring": "false"
+      },
+      "prices": [
+        {
+          "unit_amount": 34000,
+          "currency": "usd",
+          "recurring": null
+        }
+      ]
+    },
+    {
+      "name": "Six Months",
+      "description": "Semi-annual subscription with savings",
+      "metadata": {
+        "duration_days": "180",
+        "is_recurring": "true"
+      },
+      "prices": [
+        {
+          "unit_amount": 100000,
+          "currency": "usd",
+          "recurring": {
+            "interval": "month"
+          }
+        }
+      ]
+    },
+    {
+      "name": "One Year",
+      "description": "Annual subscription with maximum savings",
+      "metadata": {
+        "duration_days": "365",
+        "is_recurring": "true"
+      },
+      "prices": [
+        {
+          "unit_amount": 140000,
+          "currency": "usd",
+          "recurring": {
+            "interval": "month"
+          }
+        }
+      ]
+    }
+  ],
+  "webhook_endpoints": [
+    {
+      "url": "https://your-domain.com/api/subscription/webhook",
+      "enabled_events": [
+        "checkout.session.completed",
+        "invoice.payment_succeeded",
+        "invoice.payment_failed",
+        "customer.subscription.deleted",
+        "customer.subscription.updated"
+      ]
+    }
+  ],
+  "setup_instructions": {
+    "1": "Create a Stripe account at https://dashboard.stripe.com",
+    "2": "Get your API keys from the Stripe Dashboard",
+    "3": "Set environment variables: STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY",
+    "4": "Create products and prices using the Stripe Dashboard or API",
+    "5": "Set up webhook endpoints for subscription events",
+    "6": "Test the integration using Stripe's test mode",
+    "7": "Go live when ready by switching to live mode"
+  },
+  "environment_variables": {
+    "STRIPE_SECRET_KEY": "sk_test_... or sk_live_...",
+    "STRIPE_PUBLISHABLE_KEY": "pk_test_... or pk_live_...",
+    "STRIPE_WEBHOOK_SECRET": "whsec_...",
+    "FRONTEND_URL": "https://your-domain.com"
+  },
+  "testing": {
+    "test_cards": {
+      "success": "4242424242424242",
+      "decline": "4000000000000002",
+      "insufficient_funds": "4000000000009995",
+      "expired": "4000000000000069"
+    },
+    "test_customer": {
+      "email": "test@example.com",
+      "name": "Test Customer"
+    }
+  }
+} 

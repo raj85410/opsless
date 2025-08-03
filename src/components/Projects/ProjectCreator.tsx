@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { collection, addDoc } from 'firebase/firestore';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { db } from '../../config/firebase';
 import { Project, ProjectFormData, DeploymentConfig } from '../../types';
 import Logo from '../Logo';
